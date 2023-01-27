@@ -106,7 +106,7 @@ int main(int argc, char* argv[]) {
     hid_darwin_set_open_exclusive (0);
   #endif
 
-  //devs = hid_enumerate (0x0, 0x0);
+  devs = hid_enumerate (0x0, 0x0);
   //print_devices (devs);
   //hid_free_enumeration (devs);
 
