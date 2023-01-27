@@ -1,3 +1,4 @@
+//{{{
 /*******************************************************
  HIDAPI - Multi-Platform library for
  communication with HID devices.
@@ -16,23 +17,17 @@
  code repository located at:
         https://github.com/libusb/hidapi .
 ********************************************************/
-
+//}}}
 #ifndef HIDAPI_HIDPI_H
 #define HIDAPI_HIDPI_H
 
 #ifdef HIDAPI_USE_DDK
-
-#include <hidpi.h>
-
+  #include <hidpi.h>
 #else
+  /* This part of the header mimics hidpi.h, but only what is used by HIDAPI */
+  typedef struct _HIDP_PREPARSED_DATA * PHIDP_PREPARSED_DATA;
 
-/* This part of the header mimics hidpi.h,
-    but only what is used by HIDAPI */
-
-typedef struct _HIDP_PREPARSED_DATA * PHIDP_PREPARSED_DATA;
-
-typedef struct _HIDP_CAPS
-{
+  typedef struct _HIDP_CAPS {
     USAGE    Usage;
     USAGE    UsagePage;
     USHORT   InputReportByteLength;
@@ -53,13 +48,12 @@ typedef struct _HIDP_CAPS
     USHORT   NumberFeatureButtonCaps;
     USHORT   NumberFeatureValueCaps;
     USHORT   NumberFeatureDataIndices;
-} HIDP_CAPS, *PHIDP_CAPS;
+    } HIDP_CAPS, *PHIDP_CAPS;
 
-#define HIDP_STATUS_SUCCESS                0x00110000
-#define HIDP_STATUS_INVALID_PREPARSED_DATA 0xc0110001
+  #define HIDP_STATUS_SUCCESS                0x00110000
+  #define HIDP_STATUS_INVALID_PREPARSED_DATA 0xc0110001
 
-typedef NTSTATUS (__stdcall *HidP_GetCaps_)(PHIDP_PREPARSED_DATA preparsed_data, PHIDP_CAPS caps);
-
+  typedef NTSTATUS (__stdcall *HidP_GetCaps_)(PHIDP_PREPARSED_DATA preparsed_data, PHIDP_CAPS caps);
 #endif
 
 #endif /* HIDAPI_HIDPI_H */

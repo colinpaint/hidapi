@@ -1,3 +1,4 @@
+//{{{
 /*******************************************************
  HIDAPI - Multi-Platform library for
  communication with HID devices.
@@ -16,23 +17,17 @@
  code repository located at:
         https://github.com/libusb/hidapi .
 ********************************************************/
-
+//}}}
 #ifndef HIDAPI_HIDCLASS_H
 #define HIDAPI_HIDCLASS_H
 
 #ifdef HIDAPI_USE_DDK
-
-#include <hidclass.h>
-
+  #include <hidclass.h>
 #else
-
-/* This part of the header mimics hidclass.h,
-    but only what is used by HIDAPI */
-
-#define HID_OUT_CTL_CODE(id) CTL_CODE(FILE_DEVICE_KEYBOARD, (id), METHOD_OUT_DIRECT, FILE_ANY_ACCESS)
-#define IOCTL_HID_GET_FEATURE HID_OUT_CTL_CODE(100)
-#define IOCTL_HID_GET_INPUT_REPORT HID_OUT_CTL_CODE(104)
-
+  /* This part of the header mimics hidclass.h, but only what is used by HIDAPI */
+  #define HID_OUT_CTL_CODE(id) CTL_CODE(FILE_DEVICE_KEYBOARD, (id), METHOD_OUT_DIRECT, FILE_ANY_ACCESS)
+  #define IOCTL_HID_GET_FEATURE HID_OUT_CTL_CODE(100)
+  #define IOCTL_HID_GET_INPUT_REPORT HID_OUT_CTL_CODE(104)
 #endif
 
 #endif /* HIDAPI_HIDCLASS_H */

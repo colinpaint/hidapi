@@ -29,3 +29,8 @@ libtool
 CMakeLists.txt.user
 
 build
+windowsBuild
+
+*.o
+*.~*
+*.*~

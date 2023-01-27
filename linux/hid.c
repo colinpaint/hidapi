@@ -1,3 +1,4 @@
+//{{{
 /*******************************************************
  HIDAPI - Multi-Platform library for
  communication with HID devices.
@@ -17,9 +18,10 @@
  files located at the root of the source distribution.
  These files may also be found in the public source
  code repository located at:
-        https://github.com/libusb/hidapi .
+				https://github.com/libusb/hidapi .
 ********************************************************/
-
+//}}}
+//{{{  includes
 /* C */
 #include <stdio.h>
 #include <string.h>
@@ -46,10 +48,10 @@
 
 #ifdef HIDAPI_ALLOW_BUILD_WORKAROUND_KERNEL_2_6_39
 /* This definitions first appeared in Linux Kernel 2.6.39 in linux/hidraw.h.
-    hidapi doesn't support kernels older than that,
-    so we don't define macros below explicitly, to fail builds on old kernels.
-    For those who really need this as a workaround (e.g. to be able to build on old build machines),
-    can workaround by defining the macro above.
+		hidapi doesn't support kernels older than that,
+		so we don't define macros below explicitly, to fail builds on old kernels.
+		For those who really need this as a workaround (e.g. to be able to build on old build machines),
+		can workaround by defining the macro above.
 */
 #ifndef HIDIOCSFEATURE
 #define HIDIOCSFEATURE(len)    _IOC(_IOC_WRITE|_IOC_READ, 'H', 0x06, len)
@@ -67,23 +69,26 @@
 #ifndef HIDIOCGINPUT
 #define HIDIOCGINPUT(len)    _IOC(_IOC_WRITE|_IOC_READ, 'H', 0x0A, len)
 #endif
+//}}}
 
+//{{{
 struct hid_device_ {
 	int device_handle;
 	int blocking;
 	wchar_t *last_error_str;
 	struct hid_device_info* device_info;
 };
-
+//}}}
+//{{{
 static struct hid_api_version api_version = {
 	.major = HID_API_VERSION_MAJOR,
 	.minor = HID_API_VERSION_MINOR,
 	.patch = HID_API_VERSION_PATCH
 };
-
+//}}}
 static wchar_t *last_global_error_str = NULL;
 
-
+//{{{
 static hid_device *new_hid_device(void)
 {
 	hid_device *dev = (hid_device*) calloc(1, sizeof(hid_device));
@@ -98,8 +103,8 @@ static hid_device *new_hid_device(void)
 
 	return dev;
 }
-
-
+//}}}
+//{{{
 /* The caller must free the returned string with free(). */
 static wchar_t *utf8_to_wchar_t(const char *utf8)
 {
@@ -122,7 +127,9 @@ static wchar_t *utf8_to_wchar_t(const char *utf8)
 	return ret;
 }
 
+//}}}
 
+//{{{
 /* Makes a copy of the given error message (and decoded according to the
  * currently locale) into the wide string pointer pointed by error_str.
  * The last stored error string is freed.
@@ -132,7 +139,8 @@ static void register_error_str(wchar_t **error_str, const char *msg)
 	free(*error_str);
 	*error_str = utf8_to_wchar_t(msg);
 }
-
+//}}}
+//{{{
 /* Semilar to register_error_str, but allows passing a format string with va_list args into this function. */
 static void register_error_str_vformat(wchar_t **error_str, const char *format, va_list args)
 {
@@ -141,7 +149,8 @@ static void register_error_str_vformat(wchar_t **error_str, const char *format, 
 
 	register_error_str(error_str, msg);
 }
-
+//}}}
+//{{{
 /* Set the last global error to be reported by hid_error(NULL).
  * The given error message will be copied (and decoded according to the
  * currently locale, so do not pass in string constants).
@@ -151,7 +160,8 @@ static void register_global_error(const char *msg)
 {
 	register_error_str(&last_global_error_str, msg);
 }
-
+//}}}
+//{{{
 /* Similar to register_global_error, but allows passing a format string into this function. */
 static void register_global_error_format(const char *format, ...)
 {
@@ -160,7 +170,8 @@ static void register_global_error_format(const char *format, ...)
 	register_error_str_vformat(&last_global_error_str, format, args);
 	va_end(args);
 }
-
+//}}}
+//{{{
 /* Set the last error for a device to be reported by hid_error(dev).
  * The given error message will be copied (and decoded according to the
  * currently locale, so do not pass in string constants).
@@ -170,7 +181,8 @@ static void register_device_error(hid_device *dev, const char *msg)
 {
 	register_error_str(&dev->last_error_str, msg);
 }
-
+//}}}
+//{{{
 /* Similar to register_device_error, but you can pass a format string into this function. */
 static void register_device_error_format(hid_device *dev, const char *format, ...)
 {
@@ -179,14 +191,17 @@ static void register_device_error_format(hid_device *dev, const char *format, ..
 	register_error_str_vformat(&dev->last_error_str, format, args);
 	va_end(args);
 }
-
+//}}}
+//{{{
 /* Get an attribute value from a udev_device and return it as a whar_t
-   string. The returned string must be freed with free() when done.*/
+	 string. The returned string must be freed with free() when done.*/
 static wchar_t *copy_udev_string(struct udev_device *dev, const char *udev_name)
 {
 	return utf8_to_wchar_t(udev_device_get_sysattr_value(dev, udev_name));
 }
+//}}}
 
+//{{{
 /*
  * Gets the size of the HID item at the given position
  * Returns 1 if successful, 0 if an invalid key
@@ -243,7 +258,8 @@ static int get_hid_item_size(__u8 *report_descriptor, unsigned int pos, __u32 si
 	/* malformed report */
 	return 0;
 }
-
+//}}}
+//{{{
 /*
  * Get bytes from a HID Report Descriptor.
  * Only call with a num_bytes of 0, 1, 2, or 4.
@@ -270,7 +286,8 @@ static __u32 get_hid_report_bytes(__u8 *rpt, size_t len, size_t num_bytes, size_
 	else
 		return 0;
 }
-
+//}}}
+//{{{
 /*
  * Retrieves the device's Usage Page and Usage from the report descriptor.
  * The algorithm returns the current Usage Page/Usage pair whenever a new
@@ -342,13 +359,14 @@ static int get_next_hid_usage(__u8 *report_descriptor, __u32 size, unsigned int 
 	}
 
 	/* If no top-level application collection is found and usage page/usage pair is found, pair is valid
-	   https://docs.microsoft.com/en-us/windows-hardware/drivers/hid/top-level-collections */
+		 https://docs.microsoft.com/en-us/windows-hardware/drivers/hid/top-level-collections */
 	if (initial && usage_found)
 		return 0; /* success */
 
 	return 1; /* finished processing */
 }
-
+//}}}
+//{{{
 /*
  * Retrieves the hidraw report descriptor from a file.
  * When using this form, <sysfs_path>/device/report_descriptor, elevated priviledges are not required.
@@ -380,7 +398,8 @@ static int get_hid_report_descriptor(const char *rpt_path, struct hidraw_report_
 	close(rpt_handle);
 	return (int) res;
 }
-
+//}}}
+//{{{
 /* return size of the descriptor, or -1 on failure */
 static int get_hid_report_descriptor_from_sysfs(const char *sysfs_path, struct hidraw_report_descriptor *rpt_desc)
 {
@@ -395,7 +414,8 @@ static int get_hid_report_descriptor_from_sysfs(const char *sysfs_path, struct h
 
 	return res;
 }
-
+//}}}
+//{{{
 /* return non-zero if successfully parsed */
 static int parse_hid_vid_pid_from_uevent(const char *uevent, unsigned *bus_type, unsigned short *vendor_id, unsigned short *product_id)
 {
@@ -440,7 +460,9 @@ next_line:
 	register_global_error("Couldn't find/parse HID_ID");
 	return 0;
 }
+//}}}
 
+//{{{
 /* return non-zero if successfully parsed */
 static int parse_hid_vid_pid_from_uevent_path(const char *uevent_path, unsigned *bus_type, unsigned short *vendor_id, unsigned short *product_id)
 {
@@ -465,7 +487,8 @@ static int parse_hid_vid_pid_from_uevent_path(const char *uevent_path, unsigned 
 	buf[res] = '\0';
 	return parse_hid_vid_pid_from_uevent(buf, bus_type, vendor_id, product_id);
 }
-
+//}}}
+//{{{
 /* return non-zero if successfully read/parsed */
 static int parse_hid_vid_pid_from_sysfs(const char *sysfs_path, unsigned *bus_type, unsigned short *vendor_id, unsigned short *product_id)
 {
@@ -480,7 +503,8 @@ static int parse_hid_vid_pid_from_sysfs(const char *sysfs_path, unsigned *bus_ty
 
 	return res;
 }
-
+//}}}
+//{{{
 /*
  * The caller is responsible for free()ing the (newly-allocated) character
  * strings pointed to by serial_number_utf8 and product_name_utf8 after use.
@@ -541,8 +565,9 @@ next_line:
 
 	return (found_id && found_name && found_serial);
 }
+//}}}
 
-
+//{{{
 static struct hid_device_info * create_device_info_for_device(struct udev_device *raw_dev)
 {
 	struct hid_device_info *root = NULL;
@@ -745,7 +770,8 @@ end:
 
 	return root;
 }
-
+//}}}
+//{{{
 static struct hid_device_info * create_device_info_for_hid_device(hid_device *dev) {
 	struct udev *udev;
 	struct udev_device *udev_dev;
@@ -785,17 +811,21 @@ static struct hid_device_info * create_device_info_for_hid_device(hid_device *de
 
 	return root;
 }
+//}}}
 
+//{{{
 HID_API_EXPORT const struct hid_api_version* HID_API_CALL hid_version()
 {
 	return &api_version;
 }
-
+//}}}
+//{{{
 HID_API_EXPORT const char* HID_API_CALL hid_version_str()
 {
 	return HID_API_VERSION_STR;
 }
-
+//}}}
+//{{{
 int HID_API_EXPORT hid_init(void)
 {
 	const char *locale;
@@ -810,7 +840,8 @@ int HID_API_EXPORT hid_init(void)
 
 	return 0;
 }
-
+//}}}
+//{{{
 int HID_API_EXPORT hid_exit(void)
 {
 	/* Free global error message */
@@ -818,7 +849,9 @@ int HID_API_EXPORT hid_exit(void)
 
 	return 0;
 }
+//}}}
 
+//{{{
 struct hid_device_info  HID_API_EXPORT *hid_enumerate(unsigned short vendor_id, unsigned short product_id)
 {
 	struct udev *udev;
@@ -844,7 +877,7 @@ struct hid_device_info  HID_API_EXPORT *hid_enumerate(unsigned short vendor_id, 
 	udev_enumerate_scan_devices(enumerate);
 	devices = udev_enumerate_get_list_entry(enumerate);
 	/* For each item, see if it matches the vid/pid, and if so
-	   create a udev_device record for it */
+		 create a udev_device record for it */
 	udev_list_entry_foreach(dev_list_entry, devices) {
 		const char *sysfs_path;
 		unsigned short dev_vid = 0;
@@ -854,7 +887,7 @@ struct hid_device_info  HID_API_EXPORT *hid_enumerate(unsigned short vendor_id, 
 		struct hid_device_info * tmp;
 
 		/* Get the filename of the /sys entry for the device
-		   and create a udev_device object (dev) representing it */
+			 and create a udev_device object (dev) representing it */
 		sysfs_path = udev_list_entry_get_name(dev_list_entry);
 		if (!sysfs_path)
 			continue;
@@ -905,7 +938,8 @@ struct hid_device_info  HID_API_EXPORT *hid_enumerate(unsigned short vendor_id, 
 
 	return root;
 }
-
+//}}}
+//{{{
 void  HID_API_EXPORT hid_free_enumeration(struct hid_device_info *devs)
 {
 	struct hid_device_info *d = devs;
@@ -919,7 +953,9 @@ void  HID_API_EXPORT hid_free_enumeration(struct hid_device_info *devs)
 		d = next;
 	}
 }
+//}}}
 
+//{{{
 hid_device * hid_open(unsigned short vendor_id, unsigned short product_id, const wchar_t *serial_number)
 {
 	struct hid_device_info *devs, *cur_dev;
@@ -936,7 +972,7 @@ hid_device * hid_open(unsigned short vendor_id, unsigned short product_id, const
 	cur_dev = devs;
 	while (cur_dev) {
 		if (cur_dev->vendor_id == vendor_id &&
-		    cur_dev->product_id == product_id) {
+				cur_dev->product_id == product_id) {
 			if (serial_number) {
 				if (wcscmp(serial_number, cur_dev->serial_number) == 0) {
 					path_to_open = cur_dev->path;
@@ -962,7 +998,8 @@ hid_device * hid_open(unsigned short vendor_id, unsigned short product_id, const
 
 	return handle;
 }
-
+//}}}
+//{{{
 hid_device * HID_API_EXPORT hid_open_path(const char *path)
 {
 	hid_device *dev = NULL;
@@ -999,7 +1036,9 @@ hid_device * HID_API_EXPORT hid_open_path(const char *path)
 	}
 }
 
+//}}}
 
+//{{{
 int HID_API_EXPORT hid_write(hid_device *dev, const unsigned char *data, size_t length)
 {
 	int bytes_written;
@@ -1016,8 +1055,8 @@ int HID_API_EXPORT hid_write(hid_device *dev, const unsigned char *data, size_t 
 
 	return bytes_written;
 }
-
-
+//}}}
+//{{{
 int HID_API_EXPORT hid_read_timeout(hid_device *dev, unsigned char *data, size_t length, int milliseconds)
 {
 	/* Set device error to none */
@@ -1027,11 +1066,11 @@ int HID_API_EXPORT hid_read_timeout(hid_device *dev, unsigned char *data, size_t
 
 	if (milliseconds >= 0) {
 		/* Milliseconds is either 0 (non-blocking) or > 0 (contains
-		   a valid timeout). In both cases we want to call poll()
-		   and wait for data to arrive.  Don't rely on non-blocking
-		   operation (O_NONBLOCK) since some kernels don't seem to
-		   properly report device disconnection through read() when
-		   in non-blocking mode.  */
+			 a valid timeout). In both cases we want to call poll()
+			 and wait for data to arrive.  Don't rely on non-blocking
+			 operation (O_NONBLOCK) since some kernels don't seem to
+			 properly report device disconnection through read() when
+			 in non-blocking mode.  */
 		int ret;
 		struct pollfd fds;
 
@@ -1050,7 +1089,7 @@ int HID_API_EXPORT hid_read_timeout(hid_device *dev, unsigned char *data, size_t
 		}
 		else {
 			/* Check for errors on the file descriptor. This will
-			   indicate a device disconnection. */
+				 indicate a device disconnection. */
 			if (fds.revents & (POLLERR | POLLHUP | POLLNVAL)) {
 				// We cannot use strerror() here as no -1 was returned from poll().
 				register_device_error(dev, "hid_read_timeout: unexpected poll error (device disconnected)");
@@ -1069,23 +1108,26 @@ int HID_API_EXPORT hid_read_timeout(hid_device *dev, unsigned char *data, size_t
 
 	return bytes_read;
 }
-
+//}}}
+//{{{
 int HID_API_EXPORT hid_read(hid_device *dev, unsigned char *data, size_t length)
 {
 	return hid_read_timeout(dev, data, length, (dev->blocking)? -1: 0);
 }
-
+//}}}
+//{{{
 int HID_API_EXPORT hid_set_nonblocking(hid_device *dev, int nonblock)
 {
 	/* Do all non-blocking in userspace using poll(), since it looks
-	   like there's a bug in the kernel in some versions where
-	   read() will not return -1 on disconnection of the USB device */
+		 like there's a bug in the kernel in some versions where
+		 read() will not return -1 on disconnection of the USB device */
 
 	dev->blocking = !nonblock;
 	return 0; /* Success */
 }
+//}}}
 
-
+//{{{
 int HID_API_EXPORT hid_send_feature_report(hid_device *dev, const unsigned char *data, size_t length)
 {
 	int res;
@@ -1098,7 +1140,8 @@ int HID_API_EXPORT hid_send_feature_report(hid_device *dev, const unsigned char 
 
 	return res;
 }
-
+//}}}
+//{{{
 int HID_API_EXPORT hid_get_feature_report(hid_device *dev, unsigned char *data, size_t length)
 {
 	int res;
@@ -1111,7 +1154,8 @@ int HID_API_EXPORT hid_get_feature_report(hid_device *dev, unsigned char *data, 
 
 	return res;
 }
-
+//}}}
+//{{{
 int HID_API_EXPORT HID_API_CALL hid_get_input_report(hid_device *dev, unsigned char *data, size_t length)
 {
 	int res;
@@ -1124,7 +1168,8 @@ int HID_API_EXPORT HID_API_CALL hid_get_input_report(hid_device *dev, unsigned c
 
 	return res;
 }
-
+//}}}
+//{{{
 void HID_API_EXPORT hid_close(hid_device *dev)
 {
 	if (!dev)
@@ -1139,8 +1184,9 @@ void HID_API_EXPORT hid_close(hid_device *dev)
 
 	free(dev);
 }
+//}}}
 
-
+//{{{
 int HID_API_EXPORT_CALL hid_get_manufacturer_string(hid_device *dev, wchar_t *string, size_t maxlen)
 {
 	if (!string || !maxlen) {
@@ -1164,7 +1210,8 @@ int HID_API_EXPORT_CALL hid_get_manufacturer_string(hid_device *dev, wchar_t *st
 
 	return 0;
 }
-
+//}}}
+//{{{
 int HID_API_EXPORT_CALL hid_get_product_string(hid_device *dev, wchar_t *string, size_t maxlen)
 {
 	if (!string || !maxlen) {
@@ -1188,7 +1235,8 @@ int HID_API_EXPORT_CALL hid_get_product_string(hid_device *dev, wchar_t *string,
 
 	return 0;
 }
-
+//}}}
+//{{{
 int HID_API_EXPORT_CALL hid_get_serial_number_string(hid_device *dev, wchar_t *string, size_t maxlen)
 {
 	if (!string || !maxlen) {
@@ -1212,8 +1260,8 @@ int HID_API_EXPORT_CALL hid_get_serial_number_string(hid_device *dev, wchar_t *s
 
 	return 0;
 }
-
-
+//}}}
+//{{{
 HID_API_EXPORT struct hid_device_info *HID_API_CALL hid_get_device_info(hid_device *dev) {
 	if (!dev->device_info) {
 		// Lazy initialize device_info
@@ -1223,7 +1271,8 @@ HID_API_EXPORT struct hid_device_info *HID_API_CALL hid_get_device_info(hid_devi
 	// create_device_info_for_hid_device will set an error if needed
 	return dev->device_info;
 }
-
+//}}}
+//{{{
 int HID_API_EXPORT_CALL hid_get_indexed_string(hid_device *dev, int string_index, wchar_t *string, size_t maxlen)
 {
 	(void)string_index;
@@ -1234,8 +1283,9 @@ int HID_API_EXPORT_CALL hid_get_indexed_string(hid_device *dev, int string_index
 
 	return -1;
 }
+//}}}
 
-
+//{{{
 /* Passing in NULL means asking for the last global error message. */
 HID_API_EXPORT const wchar_t * HID_API_CALL  hid_error(hid_device *dev)
 {
@@ -1249,3 +1299,4 @@ HID_API_EXPORT const wchar_t * HID_API_CALL  hid_error(hid_device *dev)
 		return L"Success";
 	return last_global_error_str;
 }
+//}}}
