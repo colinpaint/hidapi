@@ -88,7 +88,6 @@ int main(int argc, char* argv[]) {
   hid_device *handle;
   int i;
 
-  struct hid_device_info *devs;
 
   printf ("hidapi test/example tool. Compiled with hidapi version %s, runtime version %s.\n",
           HID_API_VERSION_STR, hid_version_str());
@@ -106,9 +105,9 @@ int main(int argc, char* argv[]) {
     hid_darwin_set_open_exclusive (0);
   #endif
 
-  devs = hid_enumerate (0x0, 0x0);
+  struct hid_device_info* devs = hid_enumerate (0x0, 0x0);
   //print_devices (devs);
-  //hid_free_enumeration (devs);
+  hid_free_enumeration (devs);
 
   // Set up the command buffer.
   memset (buf, 0x00, sizeof(buf));
