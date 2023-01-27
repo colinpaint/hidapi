@@ -27,6 +27,3 @@ libtool
 
 # Qt Creator
 CMakeLists.txt.user
-
-*.~*
-*.*~
